@@ -5,37 +5,44 @@ const API_URL =
 const THRESHOLD = 0; // TODO: change to 1; 0 is just for testing
 
 // Seattle coordinates
-const LONG = -122.3321;
-const LAT = 47.6062;
+const LONGITUDE = -122.3321;
+const LATITUDE = 47.6062;
 
 fetch(API_URL)
 	.then((data) => data.json())
-	.then((resp) => {
-		const coords = getCords360(LONG, LAT);
-		const forecast = resp.coordinates.find(
-			(c) => c[0] === coords[0] && c[1] === coords[1],
+	.then((response) => {
+		const location = to360({ longitude: LONGITUDE, latitude: LATITUDE });
+		const forecast = response.coordinates.find(
+			(entry) => entry[0] === location[0] && entry[1] === location[1],
 		)[2];
-		if (forecast >= THRESHOLD) notify(forecast, resp["Forecast Time"]);
+		if (forecast >= THRESHOLD) notify(forecast, response["Forecast Time"]);
 	});
 
 /*
+	Convert to 0-360 Coordinates
 	The API uses a 0-360 coordinate system, whereas humans typically use -180 - 180 for long & lat.
 	This function converts them.
 	It also rounds them since the API doesn't support floats.
 	Formula from: http://www.idlcoyote.com/map_tips/lonconvert.html
 */
-function getCords360(long180, lat180) {
-	const lon360 = (long180 + 360) % 360;
-	const lat360 = (lat180 + 360) % 360;
-	return [Math.round(lon360), Math.round(lat360)];
+function to360(coords180: { longitude; latitude }) {
+	const coords360 = {
+		longitude: (coords180.longitude + 360) % 360,
+		latitude: (coords180.latitude + 360) % 360,
+	};
+	return [Math.round(coords360.longitude), Math.round(coords360.latitude)];
 }
 
-function getPstTime(utc) {
-	return moment.parseZone(utc).local().format("hh:mm:ss a");
+/** Convert to Pacific Standard Time */
+function toPstTime(/** Coordinated Universal Time */ utcTime) {
+	return moment.parseZone(utcTime).local().format("hh:mm:ss a");
 }
 
-function notify(forecast, utcTime) {
-	const pstTime = getPstTime(utcTime);
+function notify(
+	/** Aurora Borealis Forecast */ forecast,
+	/** Coordinated Universal Time */ utcTime,
+) {
+	const pstTime = toPstTime(utcTime);
 	const subject = "AURORA ALERT";
 	const message = `There is an Aurora forecast of ${forecast}% for ${pstTime}`;
 	// TODO: send email to process.env.PHONE_NUMBER + "@txt.att.net";
