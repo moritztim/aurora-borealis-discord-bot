@@ -1,5 +1,6 @@
 {
   "imports": {
-    "discordeno": "npm:discordeno@^21.0.0"
+    "discordeno": "npm:discordeno@^21.0.0",
+    "moment": "npm:moment@^2.30.1"
   }
 }
