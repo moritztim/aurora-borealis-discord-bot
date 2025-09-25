@@ -1,0 +1,8 @@
+# Configuration file for Prettier. See https://prettier.io/docs/en/options
+
+# The following should be handled when displaying, not when writing text.
+useTabs: true # Tabs are made for indentation, spaces are a hack.
+proseWrap: never # Unfortunately, this only applies to markdown.
+printWidth: 80 # Sadly, Prettier overrides manual wrapping below this width.
+
+trailingComma: all # Avoids unnecessary diffs when adding new items.
