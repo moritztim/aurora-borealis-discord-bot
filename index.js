@@ -1,4 +1,3 @@
-import fetch from "node-fetch";
 import moment from "moment";
 
 const API_URL = "https://services.swpc.noaa.gov/json/ovation_aurora_latest.json";
