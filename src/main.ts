@@ -1,4 +1,6 @@
 import moment from "moment";
+import * as Coordination from "../types/coords.ts";
+import { Coords } from "../types/coords.ts";
 
 const API_URL =
 	"https://services.swpc.noaa.gov/json/ovation_aurora_latest.json";
@@ -13,7 +15,8 @@ fetch(API_URL)
 	.then((response) => {
 		const location = to360({ longitude: LONGITUDE, latitude: LATITUDE });
 		const forecast = response.coordinates.find(
-			(entry) => entry[0] === location[0] && entry[1] === location[1],
+			(entry) =>
+				entry[0] === location.longitude && entry[1] === location.latitude,
 		)[2];
 		if (forecast >= THRESHOLD) notify(forecast, response["Forecast Time"]);
 	});
@@ -25,12 +28,17 @@ fetch(API_URL)
 	It also rounds them since the API doesn't support floats.
 	Formula from: http://www.idlcoyote.com/map_tips/lonconvert.html
 */
-function to360(coords180: { longitude; latitude }) {
+function to360(
+	coords180: Coords<Coordination.SIGNED>,
+): Coords<Coordination.UNSIGNED> {
 	const coords360 = {
 		longitude: (coords180.longitude + 360) % 360,
 		latitude: (coords180.latitude + 360) % 360,
 	};
-	return [Math.round(coords360.longitude), Math.round(coords360.latitude)];
+	return {
+		longitude: Math.round(coords360.longitude),
+		latitude: Math.round(coords360.latitude),
+	} as Coords<Coordination.UNSIGNED>;
 }
 
 /** Convert to Pacific Standard Time */
